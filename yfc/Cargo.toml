@@ -1,0 +1,28 @@
+[package]
+name = "yfc"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+yfc_derive = {optional = true, path = "../yfc_derive"}
+ybc = {optional = true, path = "../../ybc"}
+yew = "0.20"
+strum = { version = "0.24", features = ["derive"] }
+web-sys = { version = "0.3.61", features = ["HtmlInputElement", "HtmlSelectElement", "HtmlTextAreaElement"] }
+
+[dev-dependencies]
+yew = {version = "0.20", features = ["ssr", "csr"]}
+regex = "1.7"
+wasm-bindgen-test = "0.3"
+wasm-bindgen = "0.2"
+gloo = { version = "0.8", features = ["futures"]}
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+tokio = { version = "1.26", features = ["full"] }
+
+[features]
+default = ["derive"]
+derive = ["dep:yfc_derive"]
+ybc = ["dep:ybc"]
