@@ -25,9 +25,6 @@ tokio = { version = "1.26", features = ["full"] }
 
 [features]
 default = ["derive"]
-derive = ["dep:yfc_derive", "validator?/derive"]
+derive = ["dep:yfc_derive"]
 ybc = ["dep:ybc"]
 validator = ["dep:validator"]
-validator-card = ["validator?/card"]
-validator-phone = ["validator?/phone"]
-validator-unix = ["validator?/unic"]

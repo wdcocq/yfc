@@ -1,5 +1,3 @@
-#[cfg(feature = "validator")]
-pub use validator::Validate;
 pub use yfc_derive::Model;
 
 pub use crate::{

@@ -10,6 +10,4 @@ pub mod prelude;
 pub use components::*;
 pub use form::Form;
 pub use model::Model;
-#[cfg(feature = "validator")]
-pub use validator::Validate;
 pub use yfc_derive::Model;
