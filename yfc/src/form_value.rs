@@ -1,4 +1,4 @@
-use std::{cell::RefMut, ops::Deref};
+use std::{cell::RefMut, ops::Deref, str::FromStr};
 
 use yew::AttrValue;
 
@@ -99,5 +99,75 @@ where
         } else {
             Some(FormValue::from_value(value))
         }
+    }
+}
+
+#[derive(PartialEq, Default, Debug, Clone)]
+pub struct ValueWrapper<T>(T)
+where
+    T: FromStr + ToString;
+
+impl<T> Deref for ValueWrapper<T>
+where
+    T: FromStr + ToString,
+{
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<T> From<T> for ValueWrapper<T>
+where
+    T: FromStr + ToString,
+{
+    fn from(value: T) -> Self {
+        Self(value)
+    }
+}
+
+impl<T> StateProvider for ValueWrapper<T>
+where
+    T: FromStr + ToString + 'static,
+{
+    type State = Field;
+
+    type StateMut<'a>
+    = FormValueState<'a, ValueWrapper<T>>
+    where
+        Self: 'a;
+
+    fn create_state(&self) -> Self::State {
+        Field::new(self.0.to_string())
+    }
+
+    fn create_state_mut<'a>(
+        model: RefMut<'a, Self>,
+        state: RefMut<'a, Self::State>,
+    ) -> Self::StateMut<'a> {
+        FormValueState {
+            value: model,
+            field: state,
+        }
+    }
+}
+
+impl<T> FormValue for ValueWrapper<T>
+where
+    T: FromStr + ToString + PartialEq + 'static,
+    <T as FromStr>::Err: std::fmt::Debug,
+{
+    type StateMut<'a>
+    = FormValueState<'a, ValueWrapper<T>>
+    where
+        Self: 'a;
+
+    fn value(&self) -> String {
+        self.0.to_string()
+    }
+
+    fn from_value(value: &str) -> Self {
+        ValueWrapper(T::from_str(value).unwrap())
     }
 }

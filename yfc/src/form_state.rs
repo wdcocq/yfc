@@ -145,7 +145,7 @@ where
 }
 
 pub trait StateProvider: Sized {
-    type State: PartialEq;
+    type State: PartialEq + std::fmt::Debug;
     type StateMut<'a>: StateMut<'a, Self>
     where
         Self: 'a;

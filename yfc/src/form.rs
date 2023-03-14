@@ -1,6 +1,6 @@
-use std::{cell::Ref, rc::Rc};
+use std::{cell::Ref, fmt::Debug, rc::Rc};
 
-use yew::UseStateHandle;
+use yew::{html::ImplicitClone, UseStateHandle};
 
 use crate::{
     form_state::{FormState, OwnedFormState, RefFormState, StateProvider},
@@ -29,12 +29,25 @@ where
     }
 }
 
+impl<T> ImplicitClone for Form<T> where T: StateProvider {}
+
 impl<T> PartialEq for Form<T>
 where
     T: StateProvider,
 {
     fn eq(&self, other: &Self) -> bool {
         Rc::ptr_eq(&self.form_state, &other.form_state) && self.counter == other.counter
+    }
+}
+
+impl<T> Debug for Form<T>
+where
+    T: StateProvider,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Form")
+            .field("state", &self.form_state.state())
+            .finish()
     }
 }
 

@@ -102,12 +102,12 @@ pub fn input<T: FormValue + 'static>(
     if let Some(input_type) = input_type.ybc_type() {
         return html! {
             <ybc::Input
-                name={form_field.field_name()}
+                name="input"
                 {classes}
                 r#type={input_type}
                 autocomplete={*autocomplete}
                 {placeholder}
-                value={form_field.value()}
+                value={form.state().value()}
                 update={oninput}
                 disabled={*disabled}
             />

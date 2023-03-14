@@ -10,7 +10,8 @@ yfc_derive = {optional = true, path = "../yfc_derive"}
 ybc = {optional = true, path = "../../ybc"}
 yew = "0.20"
 strum = { version = "0.24", features = ["derive"] }
-web-sys = { version = "0.3.61", features = ["HtmlInputElement", "HtmlSelectElement", "HtmlTextAreaElement"] }
+web-sys = { version = "0.3", features = ["HtmlInputElement", "HtmlSelectElement", "HtmlTextAreaElement"] }
+validator = { version = "0.16", optional = true }
 
 [dev-dependencies]
 yew = {version = "0.20", features = ["ssr", "csr"]}
@@ -24,5 +25,9 @@ tokio = { version = "1.26", features = ["full"] }
 
 [features]
 default = ["derive"]
-derive = ["dep:yfc_derive"]
+derive = ["dep:yfc_derive", "validator?/derive"]
 ybc = ["dep:ybc"]
+validator = ["dep:validator"]
+validator-card = ["validator?/card"]
+validator-phone = ["validator?/phone"]
+validator-unix = ["validator?/unic"]

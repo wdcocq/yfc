@@ -97,6 +97,7 @@ pub fn select<T: FormValue>(
     html! {
        <ybc::Select
             // name={form_field.field_name()}
+            name="select"
             {classes}
             disabled={*disabled}
             update={onchange}>

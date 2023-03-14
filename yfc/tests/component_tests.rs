@@ -35,7 +35,7 @@ async fn test_checkbox() {
         html! {
             <>
                 <CheckBox form={form.check_form()}/>
-                <div id="value">{form.state().check()}</div>
+                <div id="value">{&form.state().check}</div>
                 <div id="model">{form.model().check}</div>
             </>
         }
@@ -93,7 +93,7 @@ async fn test_input() {
         html! {
             <>
                 <Input<String> form={form.input_form()}/>
-                <div id="value">{form.state().input()}</div>
+                <div id="value">{&form.state().input}</div>
                 <div id="model">{&form.model().input}</div>
             </>
         }

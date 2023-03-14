@@ -367,14 +367,6 @@ fn expand_state_struct(
 ) -> (syn::Ident, proc_macro2::TokenStream) {
     let state_struct_name = format_ident!("{}State", struct_name);
 
-    let list_fns = value_list_idents
-        .iter()
-        .chain(model_list_idents)
-        .map(|i| format_ident!("{}_list", i))
-        .collect::<Vec<_>>();
-
-    let fn_names = value_idents.iter().chain(model_idents).chain(&list_fns);
-
     let idents = value_idents
         .iter()
         .chain(model_idents)
@@ -393,19 +385,14 @@ fn expand_state_struct(
     let list_inner_types = value_list_inner_types.iter().chain(model_list_inner_types);
 
     let state_struct = quote!(
-        #[derive(Default, PartialEq)]
+        #[derive(Default, Debug, PartialEq)]
         #visibility struct #state_struct_name {
             #(
-                #idents: <#types as yfc::form_state::StateProvider>::State,
+                #visibility #idents: <#types as yfc::form_state::StateProvider>::State,
             )*
         }
 
         impl #state_struct_name {
-            #(
-                #visibility fn #fn_names(&self) -> &<#types as yfc::form_state::StateProvider>::State {
-                    &self.#idents
-                }
-            )*
             #(
                 #visibility fn #list_inner_idents(&self, index: usize) -> &<#list_inner_types as yfc::form_state::StateProvider>::State {
                     &self.#list_inner_idents[index]

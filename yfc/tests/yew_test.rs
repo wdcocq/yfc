@@ -25,7 +25,7 @@ async fn test_component() {
     #[function_component(FormComp)]
     fn form_comp(Props { form }: &Props) -> Html {
         html! {
-            <p>{form.state().id()}</p>
+            <p>{&form.state().id}</p>
         }
     }
 

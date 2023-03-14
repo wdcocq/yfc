@@ -32,7 +32,7 @@ async fn test_value() {
         })?;
         Ok(html! {
             <>
-                <p>{form.state().value()}</p>
+                <p>{&form.state().value}</p>
                 <p>{form.model().value}</p>
             </>
         })
@@ -68,7 +68,7 @@ async fn test_model_value() {
 
         Ok(html! {
             <>
-                <p>{form.state().child().value()}</p>
+                <p>{&form.state().child.value}</p>
                 <p>{form.model().child.value}</p>
             </>
         })
@@ -137,7 +137,7 @@ async fn test_option_value() {
         })?;
 
         Ok(html! {
-            <p>{form.state().value()}</p>
+            <p>{&form.state().value}</p>
         })
     }
 
@@ -165,7 +165,7 @@ async fn test_option_value_none() {
         })?;
 
         Ok(html! {
-            <p>{form.state().value()}</p>
+            <p>{&form.state().value}</p>
         })
     }
 
