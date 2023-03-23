@@ -107,7 +107,7 @@ pub fn input<T: FormValue + 'static>(
                 r#type={input_type}
                 autocomplete={*autocomplete}
                 {placeholder}
-                value={form.state().value()}
+                value={form.state().value().to_owned()}
                 update={oninput}
                 disabled={*disabled}
             />
@@ -127,7 +127,7 @@ pub fn input<T: FormValue + 'static>(
             type={*input_type}
             {autocomplete}
             {placeholder}
-            value={form.state().value()}
+            value={form.state().value().to_owned()}
             {oninput}
             disabled={*disabled}
         />

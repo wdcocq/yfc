@@ -3,11 +3,7 @@ use std::rc::Rc;
 use web_sys::HtmlSelectElement;
 #[cfg(feature = "ybc")]
 use ybc;
-use yew::{
-    html::ChildrenRenderer,
-    prelude::*,
-    virtual_dom::{VChild, VText},
-};
+use yew::{html::ChildrenRenderer, prelude::*, virtual_dom::VChild};
 
 use crate::{form::Form, form_state::ValueStateMut, form_value::FormValue};
 
@@ -72,7 +68,7 @@ pub fn select<T: FormValue>(
         onchange,
     }: &SelectProps<T>,
 ) -> Html {
-    let selected = form.state().value();
+    let selected = form.state().value().to_owned();
     let classes = classes!(
         classes.clone(),
         form.state().dirty().then(|| match form.state().valid() {
@@ -131,7 +127,7 @@ pub fn select<T: FormValue>(
                 match option {
                     Options::Controlled(mut option) => {
                         let mut props = Rc::make_mut(&mut option.props);
-                        props.selected = props.value == selected;
+                        props.selected = *props.value == *selected;
                         option.into()
                     },
                     Options::Uncontrolled(option) => {
@@ -147,7 +143,7 @@ pub fn select<T: FormValue>(
 pub struct SelectOptionProps {
     pub value: AttrValue,
     #[prop_or_default]
-    pub children: Option<ChildrenRenderer<VText>>,
+    pub children: Option<Children>,
     #[prop_or_default]
     selected: bool,
 }

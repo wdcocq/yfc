@@ -1,6 +1,4 @@
-use std::{cell::RefMut, ops::Deref, str::FromStr};
-
-use yew::AttrValue;
+use std::{cell::RefMut, ops::Deref, rc::Rc, str::FromStr};
 
 use crate::{
     field::Field,
@@ -53,10 +51,14 @@ impl<'a, T> ValueStateMut<'a, T> for FormValueState<'a, T>
 where
     T: FormValue,
 {
-    fn set<S: Into<AttrValue>>(&mut self, value: S) {
+    fn set<S: Into<Rc<str>>>(&mut self, value: S) {
         let value = value.into();
         *self.value = FormValue::from_value(&value);
         self.field.set_value(value);
+    }
+
+    fn set_dirty(&mut self, value: bool) {
+        self.field.set_dirty(value);
     }
 }
 
@@ -102,6 +104,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Default, Debug, Clone)]
 pub struct ValueWrapper<T>(T)
 where

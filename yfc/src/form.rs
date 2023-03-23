@@ -36,6 +36,7 @@ where
     T: StateProvider,
 {
     fn eq(&self, other: &Self) -> bool {
+        // false
         Rc::ptr_eq(&self.form_state, &other.form_state) && self.counter == other.counter
     }
 }
@@ -62,6 +63,11 @@ where
     pub fn state_mut<'a>(&'a self) -> <T as StateProvider>::StateMut<'a> {
         self.counter.set((*self.counter).wrapping_add(1));
         self.form_state.state_mut()
+    }
+
+    pub fn replace(&self, model: T) {
+        self.form_state.replace_model(model);
+        self.counter.set((*self.counter).wrapping_add(1));
     }
 }
 

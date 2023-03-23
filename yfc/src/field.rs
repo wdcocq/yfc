@@ -1,14 +1,15 @@
-use std::{fmt::Display, ops::Deref};
+use std::{fmt::Display, ops::Deref, rc::Rc};
 
-use yew::{html::IntoPropValue, AttrValue};
+use yew::html::IntoPropValue;
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq, Hash, Clone)]
 pub struct Field {
-    value: AttrValue,
+    value: String,
     valid: bool,
     dirty: bool,
-    #[cfg(feature = "validate")]
-    message: AttrValue,
+    #[cfg(feature = "validator")]
+    message: String,
 }
 
 impl std::fmt::Debug for Field {
@@ -24,31 +25,31 @@ impl std::fmt::Debug for Field {
 impl Default for Field {
     fn default() -> Self {
         Self {
-            value: Default::default(),
+            value: "".into(),
             valid: true,
             dirty: false,
-            #[cfg(feature = "validate")]
-            message: Default::default(),
+            #[cfg(feature = "validator")]
+            message: "".into(),
         }
     }
 }
 
 impl Field {
-    pub fn new<S: Into<AttrValue>>(s: S) -> Self {
+    pub fn new<S: ToString>(s: S) -> Self {
         Field {
-            value: s.into(),
+            value: s.to_string(),
             ..Default::default()
         }
     }
 
-    /** Returns the current value of the field as an [`AttrValue`].  */
-    pub fn value(&self) -> AttrValue {
-        self.value.clone()
+    /** Returns the current value of the field as an [`Rc<str>`].  */
+    pub fn value(&self) -> &str {
+        &self.value
     }
 
     /** Sets the value of the field if the value is different from before and marks the fields as dirty if so. */
-    pub fn set_value<S: Into<AttrValue>>(&mut self, value: S) {
-        let value = value.into();
+    pub fn set_value<S: ToString>(&mut self, value: S) {
+        let value = value.to_string();
         if value != self.value {
             self.value = value;
             self.dirty = true;
@@ -63,14 +64,18 @@ impl Field {
         self.dirty
     }
 
-    #[cfg(feature = "validate")]
-    pub fn message(&self) -> AttrValue {
-        self.message.clone()
+    pub fn set_dirty(&mut self, value: bool) {
+        self.dirty = value;
     }
 
-    #[cfg(feature = "validate")]
-    pub fn set_message<S: Into<AttrValue>>(&mut self, message: S) {
-        self.message = message.into()
+    #[cfg(feature = "validator")]
+    pub fn message(&self) -> &str {
+        &self.message
+    }
+
+    #[cfg(feature = "validator")]
+    pub fn set_message<S: ToString>(&mut self, message: S) {
+        self.message = message.to_string()
     }
 }
 
@@ -82,9 +87,15 @@ impl Deref for Field {
     }
 }
 
-impl IntoPropValue<AttrValue> for Field {
-    fn into_prop_value(self) -> AttrValue {
-        self.value.clone().into()
+impl IntoPropValue<yew::AttrValue> for Field {
+    fn into_prop_value(self) -> yew::AttrValue {
+        self.value.into()
+    }
+}
+
+impl IntoPropValue<String> for Field {
+    fn into_prop_value(self) -> String {
+        self.value
     }
 }
 

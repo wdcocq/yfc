@@ -4,8 +4,6 @@ use std::{
     rc::Rc,
 };
 
-use yew::AttrValue;
-
 use crate::{
     field::Field,
     form_value::{FormValue, FormValueState},
@@ -19,6 +17,11 @@ where
     fn model(&self) -> Ref<T>;
     fn state(&self) -> Ref<<T as StateProvider>::State>;
     fn state_mut<'a>(&'a self) -> <T as StateProvider>::StateMut<'a>;
+    fn replace_model(&self, model: T) {
+        let (mut m, mut s) = self.state_mut().split();
+        *s = model.create_state();
+        *m = model;
+    }
 }
 
 pub(crate) struct OwnedFormState<T>
@@ -56,6 +59,12 @@ where
         let (model, state) = RefMut::map_split(self.inner.borrow_mut(), |s| (&mut s.0, &mut s.1));
         T::create_state_mut(model, state)
     }
+
+    fn replace_model(&self, model: T) {
+        let mut inner = self.inner.borrow_mut();
+        inner.1 = model.create_state();
+        inner.0 = model;
+    }
 }
 
 pub(crate) struct RefFormState<P, C, R>
@@ -81,6 +90,35 @@ where
             relation,
             phantom: PhantomData,
         }
+    }
+}
+
+impl<P, C, R> FormState<C> for RefFormState<P, C, R>
+where
+    P: Model,
+    C: StateProvider,
+    R: ModelRelation<P, C>,
+{
+    fn model(&self) -> Ref<C> {
+        Ref::map(self.parent_state.model(), |m| {
+            self.relation.relation_model(m)
+        })
+    }
+
+    fn state(&self) -> Ref<<C as StateProvider>::State> {
+        Ref::map(self.parent_state.state(), |s| {
+            self.relation.relation_state(s)
+        })
+    }
+
+    fn state_mut<'a>(&'a self) -> <C as StateProvider>::StateMut<'a> {
+        StateMut::map(self.parent_state.state_mut(), &self.relation)
+    }
+
+    fn replace_model(&self, new_model: C) {
+        let (mut model, mut state) = self.state_mut().split();
+        *state = new_model.create_state();
+        *model = new_model;
     }
 }
 
@@ -121,29 +159,6 @@ where
     }
 }
 
-impl<P, C, R> FormState<C> for RefFormState<P, C, R>
-where
-    P: Model,
-    C: StateProvider,
-    R: ModelRelation<P, C>,
-{
-    fn model(&self) -> Ref<C> {
-        Ref::map(self.parent_state.model(), |m| {
-            self.relation.relation_model(m)
-        })
-    }
-
-    fn state(&self) -> Ref<<C as StateProvider>::State> {
-        Ref::map(self.parent_state.state(), |s| {
-            self.relation.relation_state(s)
-        })
-    }
-
-    fn state_mut<'a>(&'a self) -> <C as StateProvider>::StateMut<'a> {
-        StateMut::map(self.parent_state.state_mut(), &self.relation)
-    }
-}
-
 pub trait StateProvider: Sized {
     type State: PartialEq + std::fmt::Debug;
     type StateMut<'a>: StateMut<'a, Self>
@@ -180,7 +195,8 @@ pub trait ValueStateMut<'a, T>
 where
     T: StateProvider<State = Field>,
 {
-    fn set<S: Into<AttrValue>>(&mut self, value: S);
+    fn set<S: Into<Rc<str>>>(&mut self, value: S);
+    fn set_dirty(&mut self, value: bool);
 }
 
 macro_rules! impl_state_provider {
@@ -261,7 +277,7 @@ impl<'a, T> ValueStateMut<'a, Option<T>> for OptionStateMut<'a, T>
 where
     T: FormValue + Default,
 {
-    fn set<S: Into<AttrValue>>(&mut self, value: S) {
+    fn set<S: Into<Rc<str>>>(&mut self, value: S) {
         let value = value.into();
         match value.is_empty() {
             true => {
@@ -273,6 +289,10 @@ where
                 self.state.set_value(value);
             }
         }
+    }
+
+    fn set_dirty(&mut self, value: bool) {
+        self.state.set_dirty(value);
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::form_state::StateProvider;
+use crate::{form_state::StateProvider, prelude::FormValue};
 
 pub trait Model
 where
@@ -16,3 +16,5 @@ where
     fn relation_state<'a>(&self, parent: &'a P::State) -> &'a C::State;
     fn relation_state_mut<'a>(&self, parent: &'a mut P::State) -> &'a mut C::State;
 }
+
+impl<T> Model for T where T: FormValue {}

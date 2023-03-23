@@ -384,8 +384,14 @@ fn expand_state_struct(
     let list_inner_idents = value_list_idents.iter().chain(model_list_idents);
     let list_inner_types = value_list_inner_types.iter().chain(model_list_inner_types);
 
+    #[cfg(feature = "serde")]
+    let derive_serde = quote!(#[derive(serde::Serialize, serde::Deserialize)]);
+    #[cfg(not(feature = "serde"))]
+    let derive_serde = quote!();
+
     let state_struct = quote!(
-        #[derive(Default, Debug, PartialEq)]
+        #derive_serde
+        #[derive(Default, Debug, Clone, PartialEq, Eq)]
         #visibility struct #state_struct_name {
             #(
                 #visibility #idents: <#types as yfc::form_state::StateProvider>::State,
@@ -393,6 +399,23 @@ fn expand_state_struct(
         }
 
         impl #state_struct_name {
+            #visibility fn dirty(&self) -> bool {
+                false
+                #(
+                    || self.#value_idents.dirty()
+                )*
+                #(
+                    || self.#value_list_idents.iter().any(|x| x.dirty())
+                )*
+                #(
+                    || self.#model_idents.dirty()
+                )*
+                #(
+                    || self.#model_list_idents.iter().any(|x| x.dirty())
+                )*
+
+            }
+
             #(
                 #visibility fn #list_inner_idents(&self, index: usize) -> &<#list_inner_types as yfc::form_state::StateProvider>::State {
                     &self.#list_inner_idents[index]
@@ -451,13 +474,13 @@ fn expand_state_mut_struct(
         impl<'a> #state_mut_struct_name<'a> {
 
             #(
-                #visibility fn #set_fn_names<S: ::std::convert::Into<yew::AttrValue>>(self, value: S) {
+                #visibility fn #set_fn_names<S: ::std::convert::Into<::std::rc::Rc<::std::primitive::str>>>(self, value: S) {
                     let mut state = yfc::form_state::StateMut::map(self, &#value_relations);
                     yfc::form_state::ValueStateMut::set(&mut state, value);
                 }
             )*
             #(
-                #visibility fn #set_list_fn_names<S: ::std::convert::Into<yew::AttrValue>>(self, index: usize, value: S) {
+                #visibility fn #set_list_fn_names<S: ::std::convert::Into<::std::rc::Rc<::std::primitive::str>>>(self, index: usize, value: S) {
                     let mut state = yfc::form_state::StateMut::map(self, &#value_list_elem_relations(index));
                     yfc::form_state::ValueStateMut::set(&mut state, value);
                 }
