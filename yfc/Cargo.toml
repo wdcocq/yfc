@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 yfc_derive = {optional = true, path = "../yfc_derive"}
-ybc = {optional = true, path = "../../ybc"}
+ybc = {git = "https://github.com/wdcocq/ybc", optional = true, branch = "yew-next"}
 yew = "0.20"
 strum = { version = "0.24", features = ["derive"] }
 

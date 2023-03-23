@@ -1,4 +1,4 @@
-use std::{fmt::Display, ops::Deref, rc::Rc};
+use std::{fmt::Display, ops::Deref};
 
 use yew::html::IntoPropValue;
 
