@@ -106,7 +106,7 @@ where
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Default, Debug, Clone)]
-pub struct ValueWrapper<T>(T)
+pub struct ValueWrapper<T>(pub T)
 where
     T: FromStr + ToString;
 
