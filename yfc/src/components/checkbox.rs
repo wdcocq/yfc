@@ -3,7 +3,7 @@ use yew::prelude::*;
 use crate::{form_state::ValueStateMut, Form};
 
 #[derive(Properties, PartialEq, Clone)]
-pub struct CheckBoxProps {
+pub struct CheckboxProps {
     pub form: Form<bool>,
     #[prop_or_default]
     pub classes: Classes,
@@ -11,13 +11,13 @@ pub struct CheckBoxProps {
     pub ontoggle: Callback<bool>,
 }
 
-#[function_component(CheckBox)]
-pub fn check_box(
-    CheckBoxProps {
+#[function_component(Checkbox)]
+pub fn checkbox(
+    CheckboxProps {
         form,
         classes,
         ontoggle,
-    }: &CheckBoxProps,
+    }: &CheckboxProps,
 ) -> Html {
     let value = *form.value();
 
@@ -31,15 +31,25 @@ pub fn check_box(
         })
     };
 
-    html! {
-        <input
-            // id={form.field_name()}
-            class={classes.clone()}
-            type="checkbox"
-            value={value.to_string()}
-            onchange={ontoggle}
-            checked={value}
-            class={classes.clone()}
-         />
+    #[cfg(feature = "ybc")]
+    {
+        html!(
+            <ybc::Checkbox name="" checked={value} update={ontoggle}/>
+        )
+    }
+
+    #[cfg(not(feature = "ybc"))]
+    {
+        html! {
+            <input
+                // id={form.field_name()}
+                class={classes.clone()}
+                type="checkbox"
+                value={value.to_string()}
+                onchange={ontoggle}
+                checked={value}
+                class={classes.clone()}
+             />
+        }
     }
 }

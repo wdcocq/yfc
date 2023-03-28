@@ -34,7 +34,7 @@ async fn test_checkbox() {
 
         html! {
             <>
-                <CheckBox form={form.check_form()}/>
+                <Checkbox form={form.check_form()}/>
                 <div id="value">{&form.state().check}</div>
                 <div id="model">{form.model().check}</div>
             </>
